@@ -6,7 +6,8 @@
   "scripts": {
     "build": "npx tsc --skipLibCheck",
     "start": "npx tsc --skipLibCheck && node dist/app.js",
-    "lint": "npx eslint src/"
+    "lint": "npx eslint src/",
+    "dev": "nodemon --watch src --exec \"npx tsc --skipLibCheck && node dist/app.js\""
   },
   "repository": {
     "type": "git",
@@ -21,6 +22,8 @@
   },
   "homepage": "https://github.com/untitled123214124/server#readme",
   "dependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.7",
     "@types/mongoose": "^5.11.97",
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.7",
