@@ -1,7 +1,8 @@
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import connectDB from './config/db';
-import userRoutes from './routes/userRoutes';
+import commentRoutes from './routes/commentRoutes';
+// import userRoutes from './routes/userRoutes';
 dotenv.config();
 
 const app = express();
@@ -27,7 +28,7 @@ const initializeServer = async () => {
     console.error('Failed to start server : ', error);
   }
 };
-
+app.use('/comments', commentRoutes);
 initializeServer();
 
-app.use('/api/users', userRoutes);
+// app.use('/api/users', userRoutes);
