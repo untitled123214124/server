@@ -8,6 +8,8 @@ export const createCommentValidator = [
     .optional()
     .isMongoId()
     .withMessage('유효한 부모 댓글 ID가 아닙니다.'),
+  body('userId').notEmpty().withMessage('userId가 필요합니다.'), // userId 필드 검증 추가
+  body('postId').notEmpty().withMessage('postId가 필요합니다.'), // postId 필드 검증 추가
 ];
 
 export const updateCommentValidator = [

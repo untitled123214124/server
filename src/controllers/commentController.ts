@@ -7,7 +7,7 @@ export const createComment = async (
   res: Response
 ): Promise<void> => {
   const { postId, content, parentId } = req.body; // parentId는 대댓글을 위한 optional 필드
-  const userId = req.body.userid; // Assume user ID is available from authentication middleware
+  const userId = req.body.userId; // Assume user ID is available from authentication middleware
 
   try {
     const createdComment = await commentService.createCommentService(
