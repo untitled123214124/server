@@ -1,3 +1,6 @@
+### 핵심 내용
+- 
+
 ### PR 종류
 - [ ] Bugfix
 - [ ] New Feature
@@ -5,8 +8,7 @@
 - [ ] Refactoring
 - [ ] Other
 
-### 핵심 내용
-- 
+
 
 ### 부가 설명
 - 
