@@ -7,21 +7,6 @@ export interface IComment extends Document {
   parentId?: string; // 부모 댓글 ID, 대댓글일 경우 참조
 }
 
-export interface IApiResponse {
-  success: boolean;
-  message?: string;
-}
-
-export interface ICreateCommentResponse extends IApiResponse {
-  createdComment: IComment;
-}
-
-export interface IUpdateCommentResponse extends IApiResponse {
-  updatedComment: IComment;
-}
-
-export interface IDeleteCommentResponse extends IApiResponse {}
-
 const commentSchema = new Schema<IComment>(
   {
     userId: { type: String, required: true },

@@ -1,10 +1,13 @@
 import express from 'express';
 import * as commentController from '../controllers/commentController';
-// @ts-ignore
 import {
   createCommentValidator,
   updateCommentValidator,
   deleteCommentValidator,
+  getCommentsByPostValidator,
+  getRepliesByParentValidator,
+  updateNotificationStatusValidator,
+  getNotificationsByUserIdValidator,
   validate,
 } from '../validators/commentValidator';
 
@@ -35,9 +38,35 @@ router.delete(
 );
 
 // 게시글에 달린 댓글 가져오기
-router.get('/:postId', commentController.getCommentsByPost);
+router.get(
+  '/:postId',
+  getCommentsByPostValidator,
+  validate,
+  commentController.getCommentsByPost
+);
 
 // 부모 댓글을 기준으로 대댓글 가져오기
-router.get('/replies/:parentId', commentController.getRepliesByParent);
+router.get(
+  '/replies/:parentId',
+  getRepliesByParentValidator,
+  validate,
+  commentController.getRepliesByParent
+);
+
+// 알림 본 것으로 처리
+router.patch(
+  '/alarm/:notificationId',
+  updateNotificationStatusValidator,
+  validate,
+  commentController.updateNotificationStatus
+);
+
+// 사용자 ID로 알림 정보 가져오기
+router.get(
+  '/alarm/:userId',
+  getNotificationsByUserIdValidator,
+  validate,
+  commentController.getNotificationsByUserId
+);
 
 export default router;
