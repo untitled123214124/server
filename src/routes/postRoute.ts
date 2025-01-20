@@ -13,7 +13,7 @@ import {
   getPostValidationRules,
   getPostsValidationRules,
   validatePost,
-} from '../validator.ts/postValidator';
+} from '../validators/postValidator';
 
 const router = Express.Router({ mergeParams: true });
 

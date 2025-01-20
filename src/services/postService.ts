@@ -3,7 +3,6 @@ import {
   IDeletePostResponse,
   IGetPostResponse,
   IGetPostsResponse,
-  IPost,
   IUpdatePostResponse,
 } from '../models/postModel';
 import {
