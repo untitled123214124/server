@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import connectDB from './config/db';
 import postRoute from './routes/postRoute';
 import userRoutes from './routes/userRoutes';
+import commentRoutes from './routes/commentRoutes';
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ const initializeServer = async () => {
     console.error('Failed to start server : ', error);
   }
 };
+app.use('/comments', commentRoutes);
 
 app.use('/boards/:boardId/posts', postRoute);
 app.use('/api/users', userRoutes);
