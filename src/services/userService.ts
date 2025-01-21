@@ -15,3 +15,17 @@ export const registerUser = async (
   const hashedPassword = await bcrypt.hash(password, 10);
   await createUser({ username, email, password: hashedPassword });
 };
+
+export const authenticateUser = async (email: string, password: string) => {
+  const user = await findUserByEmail(email);
+  if (!user) {
+    throw new BadRequestError('이메일 또는 비밀번호가 잘못되었습니다.');
+  }
+
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
+    throw new BadRequestError('이메일 또는 비밀번호가 잘못되었습니다.');
+  }
+
+  return user;
+};

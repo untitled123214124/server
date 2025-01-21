@@ -25,5 +25,6 @@ const initializeServer = async () => {
 };
 
 app.use('/boards/:boardId/posts', postRoute);
+app.use('/api/users', userRoutes);
 
 initializeServer();
