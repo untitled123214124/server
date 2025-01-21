@@ -9,6 +9,9 @@
     "lint": "npx eslint src/",
     "dev": "nodemon --watch src --exec \"npx tsc --skipLibCheck && node dist/app.js\""
   },
+  "engines": {
+    "node": "16.x"
+  }
   "repository": {
     "type": "git",
     "url": "git+https://github.com/untitled123214124/server.git"
