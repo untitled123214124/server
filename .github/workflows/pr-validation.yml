@@ -1,0 +1,26 @@
+name: pr-validation
+
+# PR이 생성되거나 업데이트될 때 실행
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  jobs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3  # 코드 체크아웃
+      - uses: actions/setup-node@v3  # 최신 LTS 버전의 노드 설치
+        with:
+          node-version: '22.x'
+      - run: npm ci
+
+      # lint 단계
+      - name: Run lint
+        run: npm run lint
+
+      # typecheck & build 단계
+      - name: Run build
+        run: npm run build
+    
