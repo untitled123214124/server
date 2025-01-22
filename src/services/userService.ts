@@ -18,7 +18,7 @@ export const registerUser = async (
 
 export const authenticateUser = async (email: string, password: string) => {
   const user = await findUserByEmail(email);
-  if (!user) {
+  if (!user || !user.password) {
     throw new BadRequestError('이메일 또는 비밀번호가 잘못되었습니다.');
   }
 

@@ -3,6 +3,7 @@ import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { BadRequestError } from '../errors/httpError';
+import { createUser, findUserByEmail } from '../repositories/userRepository';
 
 dotenv.config();
 
@@ -61,10 +62,25 @@ export const handleGitHubCallback = async (
       id: userResponse.data.id,
       username: userResponse.data.login,
       email: userEmailResponse.data.find((email: any) => email.primary)?.email,
+      avatar_url: userResponse.data.avatar_url,
     };
 
     if (!userInfo.email) {
       throw new Error('Primary email not found');
+    }
+
+    const userInDatabase = await findUserByEmail(userInfo.email);
+    if (!userInDatabase) {
+      const currentTime = new Date();
+      await createUser({
+        username: userInfo.username,
+        email: userInfo.email,
+        password: null,
+        avatar_url: userInfo.avatar_url,
+        githubId: userInfo.id,
+        createdAt: currentTime,
+        lastLoginAt: currentTime,
+      });
     }
 
     const token = jwt.sign(userInfo, JWT_SECRET_KEY!, { expiresIn: '1h' });
@@ -75,6 +91,6 @@ export const handleGitHubCallback = async (
       user: userInfo,
     });
   } catch (error) {
-    next(error); // 에러를 에러 핸들링 미들웨어로 전달
+    next(error);
   }
 };
