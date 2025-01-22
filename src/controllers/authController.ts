@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
@@ -20,12 +20,13 @@ export const redirectToGitHub = (req: Request, res: Response): void => {
 
 export const handleGitHubCallback = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   const code = req.query.code as string;
 
   if (!code) {
-    throw new BadRequestError();
+    return next(new BadRequestError('Authorization code is missing'));
   }
 
   try {
@@ -42,7 +43,7 @@ export const handleGitHubCallback = async (
     const accessToken = tokenResponse.data.access_token;
 
     if (!accessToken) {
-      throw new Error('액세스 토큰을 얻지 못했습니다');
+      throw new Error('Failed to obtain access token');
     }
 
     const userResponse = await axios.get('https://api.github.com/user', {
@@ -63,7 +64,7 @@ export const handleGitHubCallback = async (
     };
 
     if (!userInfo.email) {
-      throw new Error('이메일을 찾을 수 없습니다');
+      throw new Error('Primary email not found');
     }
 
     const token = jwt.sign(userInfo, JWT_SECRET_KEY!, { expiresIn: '1h' });
@@ -74,11 +75,6 @@ export const handleGitHubCallback = async (
       user: userInfo,
     });
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error occurred';
-    res.status(500).json({
-      error: 'GitHub OAuth Failed',
-      details: errorMessage,
-    });
+    next(error); // 에러를 에러 핸들링 미들웨어로 전달
   }
 };

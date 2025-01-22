@@ -54,3 +54,22 @@ export const generateRefreshToken = (userId: string): string => {
     expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
   });
 };
+
+/**
+ * 에러 핸들링 미들웨어
+ */
+export const errorHandler = (
+  error: Error & { statusCode?: number },
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  const statusCode = error.statusCode || 500;
+  const message = error.message || 'Internal Server Error';
+
+  res.status(statusCode).json({
+    error: true,
+    message,
+    statusCode,
+  });
+};
