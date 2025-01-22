@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import connectDB from './config/db';
+import authRoutes from './routes/authRoutes';
 import postRoute from './routes/postRoute';
 import userRoutes from './routes/userRoutes';
 import commentRoutes from './routes/commentRoutes';
@@ -24,7 +25,7 @@ const initializeServer = async () => {
     console.error('Failed to start server : ', error);
   }
 };
-
+app.use('/auth', authRoutes);
 app.use('/comments', commentRoutes);
 app.use('/boards/:boardId/posts', postRoute);
 app.use('/api/users', userRoutes);
