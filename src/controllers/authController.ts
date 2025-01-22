@@ -61,6 +61,7 @@ export const handleGitHubCallback = async (
       id: userResponse.data.id,
       username: userResponse.data.login,
       email: userEmailResponse.data.find((email: any) => email.primary)?.email,
+      avatar_url: userResponse.data.avatar_url,
     };
 
     if (!userInfo.email) {
@@ -75,6 +76,6 @@ export const handleGitHubCallback = async (
       user: userInfo,
     });
   } catch (error) {
-    next(error); // 에러를 에러 핸들링 미들웨어로 전달
+    next(error);
   }
 };
