@@ -8,7 +8,8 @@ export const checkUser = async (providerId: number) => {
 export const registerUser = async (
   username: string,
   email: string,
+  avatar_url: string,
   providerId: number
 ): Promise<void> => {
-  await createUser(username, email, providerId);
+  await createUser(username, email, avatar_url, providerId);
 };

@@ -50,10 +50,10 @@ export const handleGitHubCallback = async (
     const userResponse = await axios.get('https://api.github.com/user', {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
-    const providerId = userResponse.data.id;
-    const userId = await findUserById(providerId);
 
+    const providerId = userResponse.data.id;
     const checkUserResponse = await userService.checkUser(userResponse.data.id);
+    // github 최초 로그인 시 DB에 유저 생성
     if (!checkUserResponse) {
       const userEmailResponse = await axios.get(
         'https://api.github.com/user/emails',
@@ -61,6 +61,7 @@ export const handleGitHubCallback = async (
           headers: { Authorization: `Bearer ${accessToken}` },
         }
       );
+      const avatar_url = userResponse.data.avatar_url;
       const username = userResponse.data.login;
       const email = userEmailResponse.data.find(
         (email: any) => email.primary
@@ -68,9 +69,10 @@ export const handleGitHubCallback = async (
       if (!email) {
         throw new NotFoundError('Primary email not found');
       }
-      await userService.registerUser(username, email, providerId);
+      await userService.registerUser(username, email, avatar_url, providerId);
     }
 
+    const userId = await findUserById(providerId);
     const token = jwt.sign({ userId: userId?._id }, JWT_SECRET_KEY!, {
       expiresIn: '1h',
     });
