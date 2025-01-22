@@ -1,11 +1,11 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import connectDB from './config/db';
-import authRoutes from './routes/authRoutes';
+import userRoute from './routes/userRoute';
 import postRoute from './routes/postRoute';
-import userRoutes from './routes/userRoutes';
 import commentRoutes from './routes/commentRoutes';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 
@@ -21,6 +21,7 @@ app.use(
     credentials: true,
   })
 );
+app.use(cookieParser());
 
 const initializeServer = async () => {
   try {
@@ -34,9 +35,8 @@ const initializeServer = async () => {
     console.error('Failed to start server : ', error);
   }
 };
-app.use('/auth', authRoutes);
+app.use('/auth', userRoute);
 app.use('/comments', commentRoutes);
 app.use('/boards/:boardId/posts', postRoute);
-app.use('/api/users', userRoutes);
 
 initializeServer();

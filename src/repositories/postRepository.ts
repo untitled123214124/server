@@ -71,3 +71,12 @@ export const getCountByBoard = async (boardId: string): Promise<number> => {
   const count = await Post.countDocuments({ boardId });
   return count;
 };
+
+export const getUserByPostId = async (postId: string): Promise<string> => {
+  const post = await Post.findOne({ _id: postId }, { userId: 1 });
+  if (!post) {
+    throw new NotFoundError('존재하지 않는 게시물입니다');
+  }
+  const userId = post.userId;
+  return userId;
+};
