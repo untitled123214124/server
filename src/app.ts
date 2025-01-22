@@ -5,6 +5,7 @@ import authRoutes from './routes/authRoutes';
 import postRoute from './routes/postRoute';
 import userRoutes from './routes/userRoutes';
 import commentRoutes from './routes/commentRoutes';
+import cors from 'cors';
 
 dotenv.config();
 
@@ -12,6 +13,14 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    methods: 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+    allowedHeaders: 'Authorization, Content-Type',
+    credentials: true,
+  })
+);
 
 const initializeServer = async () => {
   try {
