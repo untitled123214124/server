@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import * as commentService from '../services/commentService';
+import * as alarmService from '../services/alarmService';
+import { NotificationType } from '../models/notificationModel';
+import { getPostById } from '../repositories/postRepository';
 
 // 댓글 생성 (대댓글 포함)
 export const createComment = async (
@@ -17,7 +20,31 @@ export const createComment = async (
       content,
       parentId
     );
-    await commentService.createNotification(createdComment);
+    const post = await getPostById(postId); // 먼저 post를 await로 가져옵니다.
+    const postUserId = post.userId; // 이제 실제 post 객체에서 userId에 접근할 수 있습니다.
+    // 알림 생성 데이터 준비
+    const notificationData: {
+      type: NotificationType;
+      targetUserId: string;
+      sourceUserId: string;
+      postId: string;
+      commentId: string;
+      message: string;
+    } = {
+      type: parentId ? 'REPLY' : 'COMMENT', // 'REPLY' 또는 'COMMENT'를 명시적으로 지정
+      targetUserId: createdComment.parentId
+        ? createdComment.parentId // 대댓글의 부모 댓글 작성자 ID
+        : postUserId, // 댓글의 게시글 작성자 ID
+      sourceUserId: userId, // 알림을 발생시킨 사용자
+      postId: createdComment.postId,
+      commentId: createdComment._id.toString(),
+      message: parentId
+        ? '회원님이 남긴 댓글에 답글이 작성되었습니다.'
+        : '회원님의 게시글에 댓글이 작성되었습니다.',
+    };
+
+    // 알림 생성
+    await alarmService.createNotification(notificationData);
     res.status(201).json(createdComment);
   } catch (error) {
     next(error);
@@ -92,40 +119,6 @@ export const getRepliesByParent = async (
   try {
     const replies = await commentService.getRepliesByParentService(parentId);
     res.status(200).json({ success: true, replies });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// 알림을 본 것으로 처리
-export const updateNotificationStatus = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  const { notificationId } = req.params;
-
-  try {
-    const updatedNotification =
-      await commentService.updateNotificationStatusService(notificationId);
-    res.status(200).json({ success: true, updatedNotification });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// 사용자 ID로 알림 정보 가져오기
-export const getNotificationsByUserId = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  const { userId } = req.params;
-
-  try {
-    const notifications =
-      await commentService.getNotificationsByUserIdService(userId);
-    res.status(200).json({ success: true, notifications });
   } catch (error) {
     next(error);
   }

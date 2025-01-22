@@ -5,8 +5,6 @@ import {
   deleteComment,
   getCommentsByPost,
   getRepliesByParent,
-  updateNotificationStatus,
-  getNotificationsByUserId,
 } from '../controllers/commentController';
 import {
   createCommentValidator,
@@ -14,8 +12,6 @@ import {
   deleteCommentValidator,
   getCommentsByPostValidator,
   getRepliesByParentValidator,
-  updateNotificationStatusValidator,
-  getNotificationsByUserIdValidator,
   validate,
 } from '../validators/commentValidator';
 
@@ -39,22 +35,6 @@ router.get(
   getRepliesByParentValidator,
   validate,
   getRepliesByParent
-);
-
-// 알림 본 것으로 처리
-router.patch(
-  '/alarm/:notificationId',
-  updateNotificationStatusValidator,
-  validate,
-  updateNotificationStatus
-);
-
-// 사용자 ID로 알림 정보 가져오기
-router.get(
-  '/alarm/:userId',
-  getNotificationsByUserIdValidator,
-  validate,
-  getNotificationsByUserId
 );
 
 export default router;

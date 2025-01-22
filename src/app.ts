@@ -6,6 +6,7 @@ import postRoute from './routes/postRoute';
 import commentRoutes from './routes/commentRoutes';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import alarmRoute from './routes/alarmRoute';
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ const initializeServer = async () => {
     console.error('Failed to start server : ', error);
   }
 };
+app.use('/alarm', alarmRoute);
 app.use('/auth', userRoute);
 app.use('/comments', commentRoutes);
 app.use('/boards/:boardId/posts', postRoute);

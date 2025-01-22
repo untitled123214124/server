@@ -5,8 +5,8 @@ export interface IComment extends Document {
   postId: string;
   content: string;
   parentId?: string; // 부모 댓글 ID, 대댓글일 경우 참조
+  _id: mongoose.Types.ObjectId; // _id를 명시적으로 지정
 }
-
 const commentSchema = new Schema<IComment>(
   {
     userId: { type: String, required: true },
