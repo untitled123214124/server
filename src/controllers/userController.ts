@@ -1,57 +1,88 @@
 import { Request, Response, NextFunction } from 'express';
-import { registerUser } from '../services/userService';
-import {
-  generateAccessToken,
-  generateRefreshToken,
-  ExtendedJwtPayload,
-} from '../middlewares/authMiddleware';
+import axios from 'axios';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+import { BadRequestError, NotFoundError } from '../errors/httpError';
+import * as userService from '../services/userService';
+import { findUserById } from '../repositories/userRepository';
 
-export const register = async (
+dotenv.config();
+
+const {
+  GITHUB_CLIENT_ID,
+  GITHUB_CLIENT_SECRET_KEY,
+  GITHUB_CALLBACK_URL,
+  JWT_SECRET_KEY,
+} = process.env;
+
+export const redirectToGitHub = (req: Request, res: Response): void => {
+  const redirectURI = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${GITHUB_CALLBACK_URL}&scope=user:email`;
+  res.redirect(redirectURI);
+};
+
+export const handleGitHubCallback = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  try {
-    const { username, email, password } = req.body;
-    await registerUser(username, email, password);
-    res.status(201).json({ message: '회원가입이 완료되었습니다.' });
-  } catch (error) {
-    next(error);
+  const code = req.query.code as string;
+
+  if (!code) {
+    throw new BadRequestError('Authorization code is missing');
   }
-};
 
-export const login = async (
-  req: Request & { user?: ExtendedJwtPayload },
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
   try {
-    const userId = req.user?.userId;
+    const tokenResponse = await axios.post(
+      'https://github.com/login/oauth/access_token',
+      {
+        client_id: GITHUB_CLIENT_ID,
+        client_secret: GITHUB_CLIENT_SECRET_KEY,
+        code,
+      },
+      { headers: { Accept: 'application/json' } }
+    );
 
-    const accessToken = generateAccessToken(userId as string);
-    const refreshToken = generateRefreshToken(userId as string);
+    const accessToken = tokenResponse.data.access_token;
+    if (!accessToken) {
+      throw new NotFoundError('Failed to obtain access token');
+    }
 
-    res.status(200).json({
-      accessToken,
-      refreshToken,
-      message: '로그인 되었습니다.',
+    const userResponse = await axios.get('https://api.github.com/user', {
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
-  } catch (error) {
-    next(error);
-  }
-};
 
-export const refreshAccessToken = async (
-  req: Request & { user?: ExtendedJwtPayload },
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const userId = req.user?.userId;
+    const providerId = userResponse.data.id;
+    const checkUserResponse = await userService.checkUser(userResponse.data.id);
+    // github 최초 로그인 시 DB에 유저 생성
+    if (!checkUserResponse) {
+      const userEmailResponse = await axios.get(
+        'https://api.github.com/user/emails',
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+      const avatar_url = userResponse.data.avatar_url;
+      const username = userResponse.data.login;
+      const email = userEmailResponse.data.find(
+        (email: any) => email.primary
+      )?.email;
+      if (!email) {
+        throw new NotFoundError('Primary email not found');
+      }
+      await userService.registerUser(username, email, avatar_url, providerId);
+    }
 
-    const newAccessToken = generateAccessToken(userId as string);
+    const userId = await findUserById(providerId);
+    const token = jwt.sign({ userId: userId?._id }, JWT_SECRET_KEY!, {
+      expiresIn: '1h',
+    });
 
-    res.status(200).json({ accessToken: newAccessToken });
+    res.cookie('authorization', token, {
+      httpOnly: true,
+    });
+    res.status(200).json({
+      message: 'GitHub 로그인 성공',
+    });
   } catch (error) {
     next(error);
   }

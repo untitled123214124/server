@@ -3,20 +3,19 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface IUser extends Document {
   username: string;
   email: string;
-  password: string | null;
-  avatar_url?: string;
-  githubId?: number;
-  createdAt: Date;
+  avatar_url: string;
+  provider: 'github';
+  providerId: number;
   lastLoginAt: Date;
 }
 
-const UserSchema: Schema = new Schema(
+const UserSchema: Schema = new Schema<IUser>(
   {
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, default: null },
     avatar_url: { type: String },
-    githubId: { type: Number, unique: true },
+    provider: { type: String, enum: ['github'], required: true },
+    providerId: { type: Number, unique: true, required: true },
     lastLoginAt: { type: Date },
   },
   { timestamps: true }

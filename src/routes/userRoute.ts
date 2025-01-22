@@ -2,7 +2,7 @@ import express from 'express';
 import {
   redirectToGitHub,
   handleGitHubCallback,
-} from '../controllers/authController';
+} from '../controllers/userController';
 
 const router = express.Router();
 

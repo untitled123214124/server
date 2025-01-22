@@ -1,14 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 import * as postService from '../services/postService';
-
-const tempUser = '1';
+import { JwtRequest } from '../middlewares/authMiddleware';
 
 export const createPost = async (
-  req: Request,
+  req: JwtRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const userId = tempUser;
+  const userId = req.user!;
   const boardId = req.params.boardId;
   const title = req.body.title;
   const content = req.body.content;
@@ -27,7 +26,7 @@ export const createPost = async (
 };
 
 export const updatePost = async (
-  req: Request,
+  req: JwtRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
@@ -48,7 +47,7 @@ export const updatePost = async (
 };
 
 export const deletePost = async (
-  req: Request,
+  req: JwtRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
