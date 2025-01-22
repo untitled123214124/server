@@ -3,6 +3,7 @@ import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { BadRequestError } from '../errors/httpError';
+import { createUser, findUserByEmail } from '../repositories/userRepository';
 
 dotenv.config();
 
@@ -66,6 +67,20 @@ export const handleGitHubCallback = async (
 
     if (!userInfo.email) {
       throw new Error('Primary email not found');
+    }
+
+    const userInDatabase = await findUserByEmail(userInfo.email);
+    if (!userInDatabase) {
+      const currentTime = new Date();
+      await createUser({
+        username: userInfo.username,
+        email: userInfo.email,
+        password: null,
+        avatar_url: userInfo.avatar_url,
+        githubId: userInfo.id,
+        createdAt: currentTime,
+        lastLoginAt: currentTime,
+      });
     }
 
     const token = jwt.sign(userInfo, JWT_SECRET_KEY!, { expiresIn: '1h' });
