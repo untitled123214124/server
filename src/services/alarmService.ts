@@ -47,9 +47,7 @@ export async function createNotification(notificationData: {
   // 데이터베이스에 알림 저장
   try {
     await notification.save();
-    console.log('Notification created successfully.');
   } catch (error) {
-    console.error('Error creating notification:', error);
     throw new Error('Failed to create notification');
   }
 }
