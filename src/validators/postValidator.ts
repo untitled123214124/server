@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { body, param, query, validationResult } from 'express-validator';
+import { body, param, validationResult } from 'express-validator';
 import { BadRequestError } from '../errors/httpError';
 
 export const createPostValidationRules = () => {

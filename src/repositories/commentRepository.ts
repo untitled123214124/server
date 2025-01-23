@@ -1,9 +1,4 @@
 import { Comment, IComment } from '../models/commentModel';
-import {
-  INotification,
-  NotificationType,
-  Notification,
-} from '../models/notificationModel';
 import { NotFoundError } from '../errors/httpError';
 
 export const createComment = async (
@@ -63,21 +58,4 @@ export const getRepliesByParentId = async (
 ): Promise<IComment[]> => {
   const replies = await Comment.find({ parentId }).lean();
   return replies;
-};
-
-export const saveAlarm = async (comment: IComment): Promise<INotification> => {
-  const notificationType: NotificationType = comment.parentId
-    ? 'REPLY'
-    : 'COMMENT';
-
-  const notificationData = {
-    userId: comment.userId, // 실제 댓글 작성자
-    type: notificationType,
-    postId: comment.postId,
-    commentId: comment._id, // 댓글 ID
-    content: comment.content,
-    isRead: false,
-  };
-  const notification = await Notification.create(notificationData);
-  return notification;
 };
