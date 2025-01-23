@@ -14,17 +14,36 @@ import {
   getRepliesByParentValidator,
   validate,
 } from '../validators/commentValidator';
+import { authOnlyLoggedIn } from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
 // 댓글 생성 (대댓글 포함)
-router.post('/', createCommentValidator, validate, createComment);
+router.post(
+  '/',
+  authOnlyLoggedIn,
+  createCommentValidator,
+  validate,
+  createComment
+);
 
 // 댓글 수정
-router.put('/:commentId', updateCommentValidator, validate, updateComment);
+router.put(
+  '/:commentId',
+  authOnlyLoggedIn,
+  updateCommentValidator,
+  validate,
+  updateComment
+);
 
 // 댓글 삭제
-router.delete('/:commentId', deleteCommentValidator, validate, deleteComment);
+router.delete(
+  '/:commentId',
+  authOnlyLoggedIn,
+  deleteCommentValidator,
+  validate,
+  deleteComment
+);
 
 // 게시글에 달린 댓글 가져오기
 router.get('/:postId', getCommentsByPostValidator, validate, getCommentsByPost);
