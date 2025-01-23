@@ -1,9 +1,4 @@
 import { Comment, IComment } from '../models/commentModel';
-import {
-  INotification,
-  NotificationType,
-  Notification,
-} from '../models/notificationModel';
 import { NotFoundError } from '../errors/httpError';
 
 export const createComment = async (
