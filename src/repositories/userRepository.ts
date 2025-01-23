@@ -6,18 +6,22 @@ export const findUserById = async (
   return await User.findOne({ providerId });
 };
 
-export const createUser = async (
+export const createOrUpdateUser = async (
   username: string,
   email: string,
   avatar_url: string,
   providerId: number
 ): Promise<void> => {
-  await User.create({
-    username,
-    email,
-    avatar_url,
-    provider: 'github',
-    providerId,
-    lastLoginAt: new Date(),
-  });
+  await User.findOneAndUpdate(
+    { providerId },
+    {
+      username,
+      email,
+      avatar_url,
+      provider: 'github',
+      providerId,
+      lastLoginAt: new Date(),
+    },
+    { upsert: true, new: true }
+  );
 };

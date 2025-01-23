@@ -1,4 +1,7 @@
-import { createUser, findUserById } from '../repositories/userRepository';
+import {
+  createOrUpdateUser,
+  findUserById,
+} from '../repositories/userRepository';
 
 export const checkUser = async (providerId: number) => {
   const existingUser = await findUserById(providerId);
@@ -11,5 +14,6 @@ export const registerUser = async (
   avatar_url: string,
   providerId: number
 ): Promise<void> => {
-  await createUser(username, email, avatar_url, providerId);
+  console.log(username, email, avatar_url, providerId);
+  await createOrUpdateUser(username, email, avatar_url, providerId);
 };
