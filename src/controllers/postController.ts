@@ -94,7 +94,6 @@ export const getPosts = async (
     next(error);
   }
 };
-
 export const like = async (
   req: Request,
   res: Response,
