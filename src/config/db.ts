@@ -1,3 +1,5 @@
+import { InternalServerError } from '../errors/httpError';
+
 const mongoose = require('mongoose');
 
 // MongoDB Connection
@@ -9,7 +11,7 @@ const connectDB = async () => {
     });
   } catch (error) {
     console.error('MongoDB connection failed:', error);
-    process.exit(1);
+    throw new InternalServerError('몽고 DB 연결에 실패했습니다');
   }
 };
 

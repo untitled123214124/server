@@ -24,14 +24,18 @@ const parseAndDecode = (
     throw new UnauthorizedError('헤더에 쿠키가 없습니다');
   }
 
-  const token = cookieHeader['authorization'];
-  const decoded = jwt.decode(token);
+  const accessToken = cookieHeader['accessToken'];
+  const decoded = jwt.decode(accessToken);
   if (!decoded) {
     throw new UnauthorizedError('토큰이 유효하지 않습니다');
   }
 
   if (typeof decoded === 'string') {
     throw new UnauthorizedError('토큰이 잘못된 형식입니다');
+  }
+
+  if (decoded.tokenType != 'access') {
+    throw new UnauthorizedError('엑세스 토큰이 아닙니다');
   }
 
   if (decoded.exp && Date.now() / 1000 > decoded.exp) {
@@ -87,26 +91,4 @@ export const authWithPostId = async (
   } catch (error) {
     next(error);
   }
-};
-
-/**
- * 액세스 토큰 생성
- * @param userId 사용자 ID
- * @returns 액세스 토큰
- */
-export const generateAccessToken = (userId: string): string => {
-  return jwt.sign({ userId }, process.env.JWT_ACCESS_SECRET!, {
-    expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
-  });
-};
-
-/**
- * 리프레시 토큰 생성
- * @param userId 사용자 ID
- * @returns 리프레시 토큰
- */
-export const generateRefreshToken = (userId: string): string => {
-  return jwt.sign({ userId }, process.env.JWT_REFRESH_SECRET!, {
-    expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
-  });
 };

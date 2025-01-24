@@ -46,7 +46,7 @@ export async function createNotification(notificationData: {
 
   // 데이터베이스에 알림 저장
   try {
-  await notification.save();
+    await notification.save();
   } catch (error) {
     throw new Error(error instanceof Error ? error.message : String(error));
   }
