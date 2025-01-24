@@ -1,15 +1,42 @@
 import { NotFoundError } from '../errors/httpError';
 import { User, IUser } from '../models/userModel';
 
-export const findUserById = async (providerId: number): Promise<IUser> => {
-  const user = await User.findOne({ providerId });
+export const checkUserById = async (
+  objectType: 'providerId' | 'id',
+  id: string
+): Promise<boolean> => {
+  const exists = await User.exists({ [objectType]: id });
+  return !!exists;
+};
+
+export const findUserById = async (
+  objectType: 'providerId' | 'id',
+  id: string
+): Promise<IUser> => {
+  const user = await User.findOne({ [objectType]: id });
   if (!user) {
-    throw new NotFoundError('사용자 정보를 찾을 수 없습니다');
+    throw new NotFoundError('사용자 정보가 없습니다');
   }
   return user;
 };
 
-export const createOrUpdateUser = async (
+export const createUser = async (
+  username: string,
+  email: string,
+  avatar_url: string,
+  providerId: number
+): Promise<void> => {
+  await User.create({
+    username,
+    email,
+    avatar_url,
+    provider: 'github',
+    providerId,
+    lastLoginAt: new Date(),
+  });
+};
+
+export const updateUser = async (
   username: string,
   email: string,
   avatar_url: string,

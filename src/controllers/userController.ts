@@ -8,7 +8,6 @@ import {
   UnauthorizedError,
 } from '../errors/httpError';
 import * as userService from '../services/userService';
-import { findUserById } from '../repositories/userRepository';
 
 dotenv.config();
 
@@ -57,9 +56,12 @@ export const handleGitHubCallback = async (
     });
 
     const providerId = userResponse.data.id;
-    const checkUserResponse = await userService.checkUser(providerId);
+    const checkUserExists = await userService.checkUser(
+      'providerId',
+      providerId
+    );
 
-    if (!checkUserResponse) {
+    if (!checkUserExists) {
       const userEmailResponse = await axios.get(
         'https://api.github.com/user/emails',
         {
@@ -80,14 +82,9 @@ export const handleGitHubCallback = async (
       await userService.registerUser(username, email, avatar_url, providerId);
     }
 
-    const user = await findUserById(providerId);
-
-    if (!user) {
-      throw new NotFoundError('사용자 정보를 찾을 수 없습니다');
-    }
-
+    const user = await userService.getUser('providerId', providerId);
     const refreshToken = jwt.sign(
-      { userId: user._id },
+      { userId: user._id, tokenType: 'refresh' },
       JWT_REFRESH_SECRET_KEY!,
       { expiresIn: '7d' }
     );
@@ -96,13 +93,20 @@ export const handleGitHubCallback = async (
       sameSite: 'strict',
     });
 
-    const accessToken = jwt.sign({ userId: user._id }, JWT_ACCESS_SECRET_KEY!, {
-      expiresIn: '1h',
+    const accessToken = jwt.sign(
+      { userId: user._id, tokenType: 'access' },
+      JWT_ACCESS_SECRET_KEY!,
+      {
+        expiresIn: '1h',
+      }
+    );
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      sameSite: 'strict',
     });
 
     res.status(200).json({
       message: 'GitHub 로그인 성공',
-      accessToken,
       user: {
         id: user._id,
         username: user.username,
@@ -126,28 +130,23 @@ export const refreshToken = async (
       throw new UnauthorizedError('리프레시 토큰이 없습니다');
     }
 
-    let payload;
-    try {
-      payload = jwt.verify(refreshToken, JWT_REFRESH_SECRET_KEY!) as {
-        userId: string;
-      };
-    } catch (error) {
-      throw new UnauthorizedError('리프레시 토큰이 유효하지 않습니다');
-    }
+    const tokenPayload = jwt.verify(refreshToken, JWT_REFRESH_SECRET_KEY!) as {
+      userId: string;
+      tokenType: string;
+    };
 
-    const user = await findUserById(payload.userId);
-    if (!user) {
-      throw new NotFoundError('사용자를 찾을 수 없습니다');
-    }
-
-    // 새 액세스 토큰 생성
+    const user = await userService.getUser('id', tokenPayload.userId);
     const newAccessToken = jwt.sign(
-      { userId: user._id },
+      { userId: user._id, tokenType: 'access' },
       JWT_ACCESS_SECRET_KEY!,
       {
         expiresIn: '1h',
       }
     );
+    res.cookie('accessToken', newAccessToken, {
+      httpOnly: true,
+      sameSite: 'strict',
+    });
 
     res.status(200).json({
       message: '액세스 토큰이 재발급되었습니다',

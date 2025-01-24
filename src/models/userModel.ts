@@ -5,7 +5,7 @@ export interface IUser extends Document {
   email: string;
   avatar_url: string;
   provider: string;
-  providerId: number;
+  providerId: string;
   lastLoginAt: Date;
 }
 
@@ -15,7 +15,7 @@ const UserSchema: Schema = new Schema<IUser>(
     email: { type: String, required: true, unique: true },
     avatar_url: { type: String },
     provider: { type: String, enum: ['github'], required: true },
-    providerId: { type: Number, unique: true, required: true },
+    providerId: { type: String, unique: true, required: true },
     lastLoginAt: { type: Date },
   },
   { timestamps: true }
