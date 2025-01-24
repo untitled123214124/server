@@ -13,7 +13,8 @@ import {
   updatePostValidationRules,
   getPostValidationRules,
   getPostsValidationRules,
-  validatePost, likePostValidationRules,
+  validatePost,
+  likePostValidationRules,
 } from '../validators/postValidator';
 import {
   authOnlyLoggedIn,
