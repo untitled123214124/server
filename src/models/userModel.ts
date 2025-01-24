@@ -4,7 +4,7 @@ export interface IUser extends Document {
   username: string;
   email: string;
   avatar_url: string;
-  provider: 'github';
+  provider: string;
   providerId: number;
   lastLoginAt: Date;
 }
