@@ -12,6 +12,11 @@ import {
   getPostById,
   getPostsByBoard,
   update,
+  findPostLike,
+  addPostLike,
+  removePostLike,
+  incrementLikeCount,
+  decrementLikeCount,
 } from '../repositories/postRepository';
 
 export const createPost = async (
@@ -73,4 +78,20 @@ export const getPosts = async (
     posts: posts,
   };
   return getPostsResponse;
+};
+
+export const toggleLike = async (postId: string, userId: string) => {
+  const existingLike = await findPostLike(postId, userId);
+
+  if (existingLike) {
+    // 좋아요 취소
+    await removePostLike(postId, userId);
+    await decrementLikeCount(postId);
+    return { success: true, message: '좋아요 취소' };
+  } else {
+    // 좋아요 추가
+    await addPostLike(postId, userId);
+    await incrementLikeCount(postId);
+    return { success: true, message: '좋아요 추가' };
+  }
 };

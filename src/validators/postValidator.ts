@@ -32,6 +32,24 @@ export const getPostsValidationRules = () => {
   ];
 };
 
+export const likePostValidationRules = () => {
+  return [
+    // postId 검증
+    body('postId')
+      .notEmpty()
+      .withMessage('게시물 아이디는 필수입니다')
+      .isString()
+      .withMessage('게시물 아이디는 문자열이어야 합니다'),
+
+    // userId 검증
+    body('userId')
+      .notEmpty()
+      .withMessage('사용자 아이디는 필수입니다')
+      .isString()
+      .withMessage('사용자 아이디는 문자열이어야 합니다'),
+  ];
+};
+
 export const validatePost = (
   req: Request,
   res: Response,
