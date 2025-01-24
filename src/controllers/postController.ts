@@ -100,7 +100,8 @@ export const like = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const { postId, userId } = req.body; // body에서 postId와 userId 추출
+  const { postId }=req.params;
+  const { userId } = req.body; // body에서 postId와 userId 추출
   try {
     // 서비스로 postId와 userId 전달
     const toggleLikeResponse = await postService.toggleLike(postId, userId);

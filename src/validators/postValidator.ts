@@ -35,7 +35,7 @@ export const getPostsValidationRules = () => {
 export const likePostValidationRules = () => {
   return [
     // postId 검증
-    body('postId')
+    param('postId')
       .notEmpty()
       .withMessage('게시물 아이디는 필수입니다')
       .isString()
