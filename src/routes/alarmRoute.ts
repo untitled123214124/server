@@ -9,7 +9,7 @@ import {
   validate,
 } from '../validators/alarmValidator';
 import express from 'express';
-import { authOnlyLoggedIn } from '../middlewares/authMiddleware'
+import { authOnlyLoggedIn } from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
