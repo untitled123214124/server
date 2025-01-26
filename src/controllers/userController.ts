@@ -11,16 +11,8 @@ import * as userService from '../services/userService';
 
 dotenv.config();
 
-const {
-  GITHUB_CLIENT_ID,
-  GITHUB_CLIENT_SECRET_KEY,
-  GITHUB_CALLBACK_URL,
-  JWT_ACCESS_SECRET_KEY,
-  JWT_REFRESH_SECRET_KEY,
-} = process.env;
-
 export const redirectToGitHub = (req: Request, res: Response): void => {
-  const redirectURI = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${GITHUB_CALLBACK_URL}&scope=user:email`;
+  const redirectURI = `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&redirect_uri=${process.env.GITHUB_CALLBACK_URL}&scope=user:email`;
   res.redirect(redirectURI);
 };
 
@@ -32,15 +24,17 @@ export const handleGitHubCallback = async (
   const code = req.query.code as string;
 
   if (!code) {
-    throw new BadRequestError('Authorization code is missing');
+    throw new BadRequestError(
+      '깃허브 접근에 필요한 Authorization code를 찾을 수 없습니다'
+    );
   }
 
   try {
     const tokenResponse = await axios.post(
       'https://github.com/login/oauth/access_token',
       {
-        client_id: GITHUB_CLIENT_ID,
-        client_secret: GITHUB_CLIENT_SECRET_KEY,
+        client_id: process.env.GITHUB_CLIENT_ID,
+        client_secret: process.env.GITHUB_CLIENT_SECRET_KEY,
         code,
       },
       { headers: { Accept: 'application/json' } }
@@ -48,7 +42,9 @@ export const handleGitHubCallback = async (
 
     const githubAccessToken = tokenResponse.data.access_token;
     if (!githubAccessToken) {
-      throw new NotFoundError('Failed to obtain access token');
+      throw new UnauthorizedError(
+        '깃허브에 접근하기 위한 엑세스 토큰을 찾을 수 없습니다'
+      );
     }
 
     const userResponse = await axios.get('https://api.github.com/user', {
@@ -85,8 +81,8 @@ export const handleGitHubCallback = async (
     const user = await userService.getUser('providerId', providerId);
     const refreshToken = jwt.sign(
       { userId: user._id, tokenType: 'refresh' },
-      JWT_REFRESH_SECRET_KEY!,
-      { expiresIn: '7d' }
+      process.env.JWT_REFRESH_SECRET_KEY!,
+      { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN! }
     );
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
@@ -95,18 +91,18 @@ export const handleGitHubCallback = async (
 
     const accessToken = jwt.sign(
       { userId: user._id, tokenType: 'access' },
-      JWT_ACCESS_SECRET_KEY!,
+      process.env.JWT_ACCESS_SECRET_KEY!,
       {
-        expiresIn: '1h',
+        expiresIn: process.env.JWT_ACCESS_EXPIRES_IN!,
       }
     );
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      sameSite: 'strict',
-    });
-
     res.status(200).json({
-      message: 'GitHub 로그인 성공',
+      message: '깃허브 로그인 성공',
+      token: {
+        accessToken: accessToken,
+        tokenType: 'Bearer',
+        expiresIn: process.env.JWT_ACCESS_EXPIRES_IN!,
+      },
       user: {
         id: user._id,
         username: user.username,
@@ -130,27 +126,33 @@ export const refreshToken = async (
       throw new UnauthorizedError('리프레시 토큰이 없습니다');
     }
 
-    const tokenPayload = jwt.verify(refreshToken, JWT_REFRESH_SECRET_KEY!) as {
+    const tokenPayload = jwt.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_SECRET_KEY!
+    ) as {
       userId: string;
       tokenType: string;
     };
+    if (tokenPayload.tokenType !== 'refresh') {
+      throw new UnauthorizedError('리프레시 토큰이 아닙니다');
+    }
 
     const user = await userService.getUser('id', tokenPayload.userId);
     const newAccessToken = jwt.sign(
       { userId: user._id, tokenType: 'access' },
-      JWT_ACCESS_SECRET_KEY!,
+      process.env.JWT_ACCESS_SECRET_KEY!,
       {
-        expiresIn: '1h',
+        expiresIn: process.env.JWT_ACCESS_EXPIRES_IN!,
       }
     );
-    res.cookie('accessToken', newAccessToken, {
-      httpOnly: true,
-      sameSite: 'strict',
-    });
 
     res.status(200).json({
       message: '액세스 토큰이 재발급되었습니다',
-      accessToken: newAccessToken,
+      token: {
+        accessToken: newAccessToken,
+        tokenType: 'Bearer',
+        expiresIn: process.env.JWT_ACCESS_EXPIRES_IN!,
+      },
     });
   } catch (error) {
     next(error);

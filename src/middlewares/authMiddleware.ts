@@ -18,13 +18,18 @@ const isUserPayload = (
 };
 
 const parseAndDecode = (
-  cookieHeader: Record<string, string> | undefined
+  authorizationHeader: string | undefined
 ): ExtendedJwtPayload => {
-  if (!cookieHeader) {
-    throw new UnauthorizedError('헤더에 쿠키가 없습니다');
+  if (!authorizationHeader) {
+    throw new UnauthorizedError('인증을 위한 Authorization 헤더가 없습니다');
   }
 
-  const accessToken = cookieHeader['accessToken'];
+  const tokenParts = authorizationHeader.split(' ');
+  if (tokenParts.length !== 2 || tokenParts[0] !== 'Bearer') {
+    throw new UnauthorizedError('Authorization 헤더 형식이 잘못되었습니다');
+  }
+
+  const accessToken = tokenParts[1];
   const decoded = jwt.decode(accessToken);
   if (!decoded) {
     throw new UnauthorizedError('토큰이 유효하지 않습니다');
@@ -54,9 +59,9 @@ export const authOnlyLoggedIn = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const cookies = req.cookies;
+  const accessToken = req.headers.authorization;
   try {
-    const tokenContent = parseAndDecode(cookies);
+    const tokenContent = parseAndDecode(accessToken);
     if (!tokenContent || !tokenContent.userId) {
       throw new UnauthorizedError('토큰에 유효한 사용자 정보가 없습니다');
     }
@@ -73,10 +78,11 @@ export const authWithPostId = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const cookies = req.cookies;
+  const accessToken = req.headers.authorization;
   const postId = req.params.postId;
+  console.log(accessToken);
   try {
-    const tokenContent = parseAndDecode(cookies);
+    const tokenContent = parseAndDecode(accessToken);
     if (!tokenContent || !tokenContent.userId) {
       throw new UnauthorizedError('토큰에 유효한 사용자 정보가 없습니다');
     }
