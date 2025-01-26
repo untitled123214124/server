@@ -10,7 +10,7 @@ export const checkUserById = async (
 };
 
 export const findUserById = async (
-  objectType: 'providerId' | 'id',
+  objectType: 'providerId' | '_id',
   id: string
 ): Promise<IUser> => {
   const user = await User.findOne({ [objectType]: id });

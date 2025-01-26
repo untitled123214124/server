@@ -137,7 +137,7 @@ export const refreshToken = async (
       throw new UnauthorizedError('리프레시 토큰이 아닙니다');
     }
 
-    const user = await userService.getUser('id', tokenPayload.userId);
+    const user = await userService.getUser('_id', tokenPayload.userId);
     const newAccessToken = jwt.sign(
       { userId: user._id, tokenType: 'access' },
       process.env.JWT_ACCESS_SECRET_KEY!,
