@@ -14,7 +14,10 @@ import {
   getRepliesByParentValidator,
   validate,
 } from '../validators/commentValidator';
-import { authOnlyLoggedIn } from '../middlewares/authMiddleware';
+import {
+  authOnlyLoggedIn,
+  authWithCommentId,
+} from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
@@ -30,7 +33,7 @@ router.post(
 // 댓글 수정
 router.put(
   '/:commentId',
-  authOnlyLoggedIn,
+  authWithCommentId,
   updateCommentValidator,
   validate,
   updateComment
@@ -39,7 +42,7 @@ router.put(
 // 댓글 삭제
 router.delete(
   '/:commentId',
-  authOnlyLoggedIn,
+  authWithCommentId,
   deleteCommentValidator,
   validate,
   deleteComment

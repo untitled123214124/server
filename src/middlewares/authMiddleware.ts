@@ -2,6 +2,7 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import { ForbiddenError, UnauthorizedError } from '../errors/httpError';
 import { getUserByPostId } from '../repositories/postRepository';
+import { getUserByCommentId } from '../repositories/commentRepository';
 
 export interface JwtRequest extends Request {
   user?: string;
@@ -79,6 +80,33 @@ export const authWithPostId = async (
     const tokenUserId = tokenContent.userId;
 
     const requestedUserId = await getUserByPostId(postId);
+    if (tokenUserId !== requestedUserId) {
+      throw new ForbiddenError('이 작업을 수행할 권한이 없습니다');
+    }
+    req.user = tokenUserId;
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const authWithCommentId = async (
+  req: JwtRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const cookies = req.cookies;
+  const commentId = req.params.commentId; // 요청된 commentId를 가져옴
+  try {
+    // 쿠키에서 JWT 토큰을 디코드하고 사용자 정보를 가져옴
+    const tokenContent = parseAndDecode(cookies);
+    if (!tokenContent || !tokenContent.userId) {
+      throw new UnauthorizedError('토큰에 유효한 사용자 정보가 없습니다');
+    }
+    const tokenUserId = tokenContent.userId;
+
+    // commentId를 사용해 댓글 작성자의 userId를 가져옴
+    const requestedUserId = await getUserByCommentId(commentId);
     if (tokenUserId !== requestedUserId) {
       throw new ForbiddenError('이 작업을 수행할 권한이 없습니다');
     }
