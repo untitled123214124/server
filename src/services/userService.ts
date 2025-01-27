@@ -30,6 +30,7 @@ export const registerUser = async (
 interface UserProfileUpdate {
   bio?: string;
   location?: string;
+  avatar_url?: string;
   techStack?: string[];
 }
 

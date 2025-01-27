@@ -180,12 +180,13 @@ export const upsertProfile = async (
   next: NextFunction
 ): Promise<void> => {
   const id = req.params.id;
-  const { bio, location, techStack } = req.body;
+  const { bio, location, techStack, avatar_url } = req.body;
   try {
     const updatedUser = await userService.updateUserProfile(id!, {
       bio,
       location,
       techStack,
+      avatar_url,
     });
 
     if (!updatedUser) {
