@@ -56,10 +56,11 @@ export const updateUser = async (
   );
 };
 
-interface UserProfileUpdate {
+export interface UserProfileUpdate {
   bio?: string;
   location?: string;
   techStack?: string[];
+  avatar_url?: string;
 }
 
 export const updateUserProfileInDB = async (
@@ -69,7 +70,7 @@ export const updateUserProfileInDB = async (
   const updatedUser = await User.findByIdAndUpdate(id, profileData, {
     new: true,
     runValidators: true,
-  }).select('username email avatar_url bio contact location techStack');
+  }).select('username email avatar_url bio contact location techStack ');
 
   return updatedUser;
 };
