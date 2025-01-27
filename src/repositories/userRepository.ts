@@ -55,3 +55,26 @@ export const updateUser = async (
     { upsert: true, new: true }
   );
 };
+
+interface UserProfileUpdate {
+  bio?: string;
+  location?: string;
+  techStack?: string[];
+}
+
+export const updateUserProfileInDB = async (
+  id: string,
+  profileData: UserProfileUpdate
+): Promise<IUser | null> => {
+  const updatedUser = await User.findByIdAndUpdate(id, profileData, {
+    new: true,
+    runValidators: true,
+  }).select('username email avatar_url bio contact location techStack');
+
+  return updatedUser;
+};
+
+export const findUserProfileById = async (id: string) => {
+  const user = await User.findById(id).exec();
+  return user;
+};

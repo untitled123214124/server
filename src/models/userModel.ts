@@ -7,6 +7,8 @@ export interface IUser extends Document {
   provider: string;
   providerId: string;
   lastLoginAt: Date;
+  bio: String;
+  techStack: String[];
 }
 
 const UserSchema: Schema = new Schema<IUser>(
@@ -17,6 +19,8 @@ const UserSchema: Schema = new Schema<IUser>(
     provider: { type: String, enum: ['github'], required: true },
     providerId: { type: String, unique: true, required: true },
     lastLoginAt: { type: Date },
+    bio: { type: String },
+    techStack: { type: [String], default: [] },
   },
   { timestamps: true }
 );
