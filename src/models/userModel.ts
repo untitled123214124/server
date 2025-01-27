@@ -4,9 +4,11 @@ export interface IUser extends Document {
   username: string;
   email: string;
   avatar_url: string;
-  provider: 'github';
-  providerId: number;
+  provider: string;
+  providerId: string;
   lastLoginAt: Date;
+  bio: String;
+  techStack: String[];
 }
 
 const UserSchema: Schema = new Schema<IUser>(
@@ -15,8 +17,10 @@ const UserSchema: Schema = new Schema<IUser>(
     email: { type: String, required: true, unique: true },
     avatar_url: { type: String },
     provider: { type: String, enum: ['github'], required: true },
-    providerId: { type: Number, unique: true, required: true },
+    providerId: { type: String, unique: true, required: true },
     lastLoginAt: { type: Date },
+    bio: { type: String },
+    techStack: { type: [String], default: [] },
   },
   { timestamps: true }
 );

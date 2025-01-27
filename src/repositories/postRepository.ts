@@ -51,16 +51,8 @@ export const getPostById = async (postId: string): Promise<IPost> => {
   return post;
 };
 
-export const getPostsByBoard = async (
-  currentPage: number,
-  limit: number,
-  boardId: string
-): Promise<IPost[]> => {
-  const skip = (currentPage - 1) * limit;
-  const posts = await Post.find({ boardId })
-    .skip(skip)
-    .limit(limit)
-    .sort({ createdAt: -1 });
+export const getPostsByBoard = async (boardId: string): Promise<IPost[]> => {
+  const posts = await Post.find({ boardId }).sort({ createdAt: -1 });
 
   if (posts.length === 0) {
     throw new NotFoundError('게시글을 찾을 수 없습니다.');

@@ -38,6 +38,7 @@ const postSchema = new Schema<IPost>(
     },
     boardId: {
       type: String,
+      enum: ['study', 'toy', 'code'],
       required: true,
     },
     title: {

@@ -19,20 +19,29 @@ const isUserPayload = (
 };
 
 const parseAndDecode = (
-  cookieHeader: Record<string, string> | undefined
+  authorizationHeader: string | undefined
 ): ExtendedJwtPayload => {
-  if (!cookieHeader) {
-    throw new UnauthorizedError('헤더에 쿠키가 없습니다');
+  if (!authorizationHeader) {
+    throw new UnauthorizedError('인증을 위한 Authorization 헤더가 없습니다');
   }
 
-  const token = cookieHeader['authorization'];
-  const decoded = jwt.decode(token);
+  const tokenParts = authorizationHeader.split(' ');
+  if (tokenParts.length !== 2 || tokenParts[0] !== 'Bearer') {
+    throw new UnauthorizedError('Authorization 헤더 형식이 잘못되었습니다');
+  }
+
+  const accessToken = tokenParts[1];
+  const decoded = jwt.decode(accessToken);
   if (!decoded) {
     throw new UnauthorizedError('토큰이 유효하지 않습니다');
   }
 
   if (typeof decoded === 'string') {
     throw new UnauthorizedError('토큰이 잘못된 형식입니다');
+  }
+
+  if (decoded.tokenType != 'access') {
+    throw new UnauthorizedError('엑세스 토큰이 아닙니다');
   }
 
   if (decoded.exp && Date.now() / 1000 > decoded.exp) {
@@ -51,9 +60,9 @@ export const authOnlyLoggedIn = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const cookies = req.cookies;
+  const accessToken = req.headers.authorization;
   try {
-    const tokenContent = parseAndDecode(cookies);
+    const tokenContent = parseAndDecode(accessToken);
     if (!tokenContent || !tokenContent.userId) {
       throw new UnauthorizedError('토큰에 유효한 사용자 정보가 없습니다');
     }
@@ -70,10 +79,11 @@ export const authWithPostId = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const cookies = req.cookies;
+  const accessToken = req.headers.authorization;
   const postId = req.params.postId;
+  console.log(accessToken);
   try {
-    const tokenContent = parseAndDecode(cookies);
+    const tokenContent = parseAndDecode(accessToken);
     if (!tokenContent || !tokenContent.userId) {
       throw new UnauthorizedError('토큰에 유효한 사용자 정보가 없습니다');
     }
@@ -95,11 +105,11 @@ export const authWithCommentId = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const cookies = req.cookies;
+  const accessToken = req.headers.authorization;
   const commentId = req.params.commentId; // 요청된 commentId를 가져옴
   try {
     // 쿠키에서 JWT 토큰을 디코드하고 사용자 정보를 가져옴
-    const tokenContent = parseAndDecode(cookies);
+    const tokenContent = parseAndDecode(accessToken);
     if (!tokenContent || !tokenContent.userId) {
       throw new UnauthorizedError('토큰에 유효한 사용자 정보가 없습니다');
     }

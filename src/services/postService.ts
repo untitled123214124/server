@@ -65,12 +65,8 @@ export const getPost = async (postId: string): Promise<IGetPostResponse> => {
   return getPostResponse;
 };
 
-export const getPosts = async (
-  currentPage: number,
-  limit: number,
-  boardId: string
-): Promise<IGetPostsResponse> => {
-  const posts = await getPostsByBoard(currentPage, limit, boardId);
+export const getPosts = async (boardId: string): Promise<IGetPostsResponse> => {
+  const posts = await getPostsByBoard(boardId);
   const total = await getCountByBoard(boardId);
   const getPostsResponse = {
     success: true,
