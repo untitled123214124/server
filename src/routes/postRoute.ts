@@ -5,6 +5,7 @@ import {
   deletePost,
   getPost,
   getPosts,
+  like,
 } from '../controllers/postController';
 import {
   createPostValidationRules,
@@ -13,6 +14,7 @@ import {
   getPostValidationRules,
   getPostsValidationRules,
   validatePost,
+  likePostValidationRules,
 } from '../validators/postValidator';
 import {
   authOnlyLoggedIn,
@@ -44,5 +46,11 @@ router.delete(
 );
 router.get('/:postId', getPostValidationRules(), validatePost, getPost);
 router.get('/', getPostsValidationRules(), validatePost, getPosts);
-
+router.post(
+  '/like/:postId',
+  authOnlyLoggedIn,
+  likePostValidationRules(),
+  validatePost,
+  like
+);
 export default router;

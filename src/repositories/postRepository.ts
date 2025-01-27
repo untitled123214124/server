@@ -1,5 +1,6 @@
 import { NotFoundError } from '../errors/httpError';
 import { IPost, Post } from '../models/postModel';
+import { PostLike } from '../models/PostLikesModel';
 
 export const create = async (
   userId: string,
@@ -71,4 +72,24 @@ export const getUserByPostId = async (postId: string): Promise<string> => {
   }
   const userId = post.userId;
   return userId;
+};
+
+export const findPostLike = async (postId: string, userId: string) => {
+  return PostLike.findOne({ postId, userId });
+};
+
+export const addPostLike = async (postId: string, userId: string) => {
+  return PostLike.create({ postId, userId });
+};
+
+export const removePostLike = async (postId: string, userId: string) => {
+  return PostLike.deleteOne({ postId, userId });
+};
+
+export const incrementLikeCount = async (postId: string) => {
+  return Post.findByIdAndUpdate(postId, { $inc: { likeCount: 1 } });
+};
+
+export const decrementLikeCount = async (postId: string) => {
+  return Post.findByIdAndUpdate(postId, { $inc: { likeCount: -1 } });
 };
