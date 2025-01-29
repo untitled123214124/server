@@ -3,6 +3,7 @@ import * as commentService from '../services/commentService';
 import * as alarmService from '../services/alarmService';
 import { NotificationType } from '../models/notificationModel';
 import { getPostById } from '../repositories/postRepository';
+import { sendSSE, userConnections } from '../utils/sse';
 
 // 댓글 생성 (대댓글 포함)
 export const createComment = async (
@@ -45,7 +46,11 @@ export const createComment = async (
 
     // 알림 생성
     await alarmService.createNotification(notificationData);
-    res.status(201).json(createdComment);
+    const sendEvent = sendSSE(req, res, notificationData.targetUserId);
+    const sseMessage = parentId
+      ? `답글 알림: ${notificationData.message}`
+      : `댓글 알림: ${notificationData.message}`;
+    sendEvent(sseMessage);
   } catch (error) {
     next(error);
   }
