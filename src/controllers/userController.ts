@@ -87,7 +87,7 @@ export const handleGitHubCallback = async (
     );
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      sameSite: 'strict',
+      sameSite: 'lax',
     });
 
     const accessToken = jwt.sign(
