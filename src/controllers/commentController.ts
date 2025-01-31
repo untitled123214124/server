@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import * as commentService from '../services/commentService';
-import * as alarmService from '../services/alarmService';
 import { NotificationType } from '../models/notificationModel';
 import { getPostById } from '../repositories/postRepository';
-import { sendSSE, userConnections } from '../utils/sse';
+import { sendSSE } from '../utils/sse';
 
 // 댓글 생성 (대댓글 포함)
 export const createComment = async (
@@ -43,14 +42,12 @@ export const createComment = async (
         ? '회원님이 남긴 댓글에 답글이 작성되었습니다.'
         : '회원님의 게시글에 댓글이 작성되었습니다.',
     };
+    res.status(201).json({ success: true, comment: createdComment });
 
     // 알림 생성
-    await alarmService.createNotification(notificationData);
-    const sendEvent = sendSSE(req, res, notificationData.targetUserId);
-    const sseMessage = parentId
-      ? `답글 알림: ${notificationData.message}`
-      : `댓글 알림: ${notificationData.message}`;
-    sendEvent(sseMessage);
+    setImmediate(() => {
+      sendSSE(notificationData.targetUserId, notificationData.message);
+    });
   } catch (error) {
     next(error);
   }

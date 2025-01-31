@@ -20,6 +20,7 @@ import {
   authOnlyLoggedIn,
   authWithPostId,
 } from '../middlewares/authMiddleware';
+import cors from 'cors';
 
 const router = Express.Router({ mergeParams: true });
 

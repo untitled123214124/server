@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 export const createCommentValidator = [
   body('content').notEmpty().withMessage('댓글 내용을 입력하세요.'),
   body('parentId')
+    .optional() // ✅ parentId가 없어도 검사를 진행하지 않음
     .custom(
       (value) =>
         value === null ||

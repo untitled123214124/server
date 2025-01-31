@@ -78,7 +78,6 @@ export const getPosts = async (boardId: string): Promise<IGetPostsResponse> => {
 
 export const toggleLike = async (postId: string, userId: string) => {
   const existingLike = await findPostLike(postId, userId);
-
   if (existingLike) {
     // 좋아요 취소
     await removePostLike(postId, userId);
