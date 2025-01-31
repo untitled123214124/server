@@ -88,3 +88,19 @@ export const getPosts = async (
     next(error);
   }
 };
+
+export const like = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const { postId } = req.params;
+  const { userId } = req.body;
+  try {
+    // 서비스로 postId와 userId 전달
+    const toggleLikeResponse = await postService.toggleLike(postId, userId);
+    res.status(200).json(toggleLikeResponse);
+  } catch (error) {
+    next(error);
+  }
+};

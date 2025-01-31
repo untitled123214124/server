@@ -1,3 +1,4 @@
+import { JwtRequest } from '../middlewares/authMiddleware';
 import { Request, Response, NextFunction } from 'express';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
@@ -154,6 +155,46 @@ export const refreshToken = async (
         expiresIn: process.env.JWT_ACCESS_EXPIRES_IN!,
       },
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getMyPage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const id = req.params.id;
+  try {
+    const user = await userService.getUserInfo(id);
+    res.status(200).json({ message: '유저 정보 조회 성공', user });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const upsertProfile = async (
+  req: JwtRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const id = req.params.id;
+  const { bio, location, techStack, avatar_url } = req.body;
+  try {
+    const updatedUser = await userService.updateUserProfile(id!, {
+      bio,
+      location,
+      techStack,
+      avatar_url,
+    });
+
+    if (!updatedUser) {
+      res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+      return;
+    }
+
+    res.status(200).json({ success: true, user: updatedUser });
   } catch (error) {
     next(error);
   }

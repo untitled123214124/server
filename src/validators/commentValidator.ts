@@ -1,11 +1,14 @@
 import { body, param, validationResult } from 'express-validator';
-
+import mongoose from 'mongoose';
 // 댓글 생성 검증
 export const createCommentValidator = [
   body('content').notEmpty().withMessage('댓글 내용을 입력하세요.'),
   body('parentId')
-    .optional()
-    .isMongoId()
+    .custom(
+      (value) =>
+        value === null ||
+        (typeof value === 'string' && mongoose.Types.ObjectId.isValid(value))
+    )
     .withMessage('유효한 부모 댓글 ID가 아닙니다.'),
   body('userId').notEmpty().withMessage('userId가 필요합니다.'),
   body('postId').notEmpty().withMessage('postId가 필요합니다.'),

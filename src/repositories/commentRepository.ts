@@ -59,3 +59,15 @@ export const getRepliesByParentId = async (
   const replies = await Comment.find({ parentId }).lean();
   return replies;
 };
+
+export const getUserByCommentId = async (
+  commentId: string
+): Promise<string> => {
+  const comment = await Comment.findById(commentId).select('userId').lean();
+
+  if (!comment || !comment.userId) {
+    throw new NotFoundError('댓글을 찾을 수 없습니다.');
+  }
+
+  return comment.userId.toString();
+};

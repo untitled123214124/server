@@ -5,6 +5,7 @@ export interface IPost extends Document {
   boardId: string;
   title: string;
   content: string;
+  likeCount: number;
 }
 
 export interface IApiResponse {
@@ -47,6 +48,10 @@ const postSchema = new Schema<IPost>(
     content: {
       type: String,
       required: true,
+    },
+    likeCount: {
+      type: Number,
+      defalut: 0,
     },
   },
   {

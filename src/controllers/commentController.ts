@@ -18,7 +18,7 @@ export const createComment = async (
       userId,
       postId,
       content,
-      parentId
+      parentId || null
     );
     const post = await getPostById(postId); // 먼저 post를 await로 가져옵니다.
     const postUserId = post.userId; // 이제 실제 post 객체에서 userId에 접근할 수 있습니다.
