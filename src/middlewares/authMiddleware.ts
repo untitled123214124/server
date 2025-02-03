@@ -81,7 +81,6 @@ export const authWithPostId = async (
 ): Promise<void> => {
   const accessToken = req.headers.authorization;
   const postId = req.params.postId;
-  console.log(accessToken);
   try {
     const tokenContent = parseAndDecode(accessToken);
     if (!tokenContent || !tokenContent.userId) {
@@ -125,26 +124,4 @@ export const authWithCommentId = async (
   } catch (error) {
     next(error);
   }
-};
-
-/**
- * 액세스 토큰 생성
- * @param userId 사용자 ID
- * @returns 액세스 토큰
- */
-export const generateAccessToken = (userId: string): string => {
-  return jwt.sign({ userId }, process.env.JWT_ACCESS_SECRET!, {
-    expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
-  });
-};
-
-/**
- * 리프레시 토큰 생성
- * @param userId 사용자 ID
- * @returns 리프레시 토큰
- */
-export const generateRefreshToken = (userId: string): string => {
-  return jwt.sign({ userId }, process.env.JWT_REFRESH_SECRET!, {
-    expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
-  });
 };

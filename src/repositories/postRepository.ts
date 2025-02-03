@@ -1,6 +1,7 @@
 import { NotFoundError } from '../errors/httpError';
 import { IPost, Post } from '../models/postModel';
 import { PostLike } from '../models/PostLikesModel';
+import { User } from '../models/userModel';
 
 export const create = async (
   userId: string,
@@ -51,13 +52,29 @@ export const getPostById = async (postId: string): Promise<IPost> => {
   return post;
 };
 
-export const getPostsByBoard = async (boardId: string): Promise<IPost[]> => {
-  const posts = await Post.find({ boardId }).sort({ createdAt: -1 });
+export const getPostsByBoard = async (
+  boardId: string,
+  currentPage: number,
+  limit: number
+) => {
+  const posts = await Post.find({ boardId })
+    .sort({ createdAt: -1 })
+    .skip((currentPage - 1) * limit)
+    .limit(limit);
 
   if (posts.length === 0) {
     throw new NotFoundError('게시글을 찾을 수 없습니다.');
   }
-  return posts;
+  const postsWithUser = await Promise.all(
+    posts.map(async (post) => {
+      const user = await User.findOne({ _id: post.userId }, 'username');
+      if (!user) {
+        throw new NotFoundError('소유자가 없는 게시글이 있습니다.');
+      }
+      return { ...post.toObject(), username: user.username };
+    })
+  );
+  return postsWithUser;
 };
 
 export const getCountByBoard = async (boardId: string): Promise<number> => {

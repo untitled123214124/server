@@ -8,6 +8,10 @@ export interface IPost extends Document {
   likeCount: number;
 }
 
+export interface IGetPost extends IPost {
+  username: string;
+}
+
 export interface IApiResponse {
   success: boolean;
   message?: string;
@@ -22,12 +26,11 @@ export interface IUpdatePostResponse extends IApiResponse {
 }
 
 export interface IDeletePostResponse extends IApiResponse {}
-export interface IGetPostResponse extends IApiResponse {}
-export interface IGetPostsResponse {
-  success: boolean;
+export interface IGetPostResponse extends IApiResponse {
+  post: IGetPost;
+}
+export interface IGetPostsResponse extends IApiResponse {
   total: number;
-  posts: IPost[];
-  message?: string;
 }
 
 const postSchema = new Schema<IPost>(

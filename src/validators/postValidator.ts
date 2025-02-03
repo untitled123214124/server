@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { body, param, validationResult } from 'express-validator';
+import { body, param, query, validationResult } from 'express-validator';
 import { BadRequestError } from '../errors/httpError';
 
 export const createPostValidationRules = () => {
@@ -41,6 +41,15 @@ export const getPostsValidationRules = () => {
       .withMessage(
         '게시판 아이디는 "study" | "toy" | "code" 중 하나여야 합니다'
       ),
+    query('currentPage')
+      .notEmpty()
+      .withMessage('현재 페이지는 필수입니다')
+      .isInt({ min: 1 })
+      .withMessage('현재 페이지는 1 이상의 정수여야 합니다'),
+    query('limit')
+      .optional()
+      .isInt({ min: 1 })
+      .withMessage('limit은 1 이상의 정수여야 합니다'),
   ];
 };
 

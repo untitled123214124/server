@@ -62,7 +62,7 @@ export const deletePost = async (
 };
 
 export const getPost = async (
-  req: Request,
+  req: JwtRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
@@ -76,13 +76,19 @@ export const getPost = async (
 };
 
 export const getPosts = async (
-  req: Request,
+  req: JwtRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   const boardId = req.params.boardId;
+  const currentPage = parseInt(req.query.currentPage as string, 10);
+  const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 6;
   try {
-    const getPostsResponse = await postService.getPosts(boardId);
+    const getPostsResponse = await postService.getPosts(
+      boardId,
+      currentPage,
+      limit
+    );
     res.status(200).json(getPostsResponse);
   } catch (error) {
     next(error);

@@ -18,6 +18,7 @@ import {
   incrementLikeCount,
   decrementLikeCount,
 } from '../repositories/postRepository';
+import { findUserById } from '../repositories/userRepository';
 
 export const createPost = async (
   userId: string,
@@ -57,16 +58,22 @@ export const deletePost = async (
 };
 
 export const getPost = async (postId: string): Promise<IGetPostResponse> => {
-  const post = await getPostById(postId);
+  let post = await getPostById(postId);
+  const user = await findUserById('_id', post.userId);
+  const result = { ...post.toObject(), username: user.username };
   const getPostResponse = {
     success: true,
-    post,
+    post: result,
   };
   return getPostResponse;
 };
 
-export const getPosts = async (boardId: string): Promise<IGetPostsResponse> => {
-  const posts = await getPostsByBoard(boardId);
+export const getPosts = async (
+  boardId: string,
+  currentPage: number,
+  limit: number
+): Promise<IGetPostsResponse> => {
+  const posts = await getPostsByBoard(boardId, currentPage, limit);
   const total = await getCountByBoard(boardId);
   const getPostsResponse = {
     success: true,
