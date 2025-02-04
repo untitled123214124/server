@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import connectDB from './config/db';
 import userRoute from './routes/userRoute';
@@ -7,6 +7,7 @@ import commentRoutes from './routes/commentRoutes';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import alarmRoute from './routes/alarmRoute';
+import { sendSSE, sseHandler } from './utils/sse';
 
 dotenv.config();
 
@@ -41,5 +42,11 @@ app.use('/alarm', alarmRoute);
 app.use('/auth', userRoute);
 app.use('/comments', commentRoutes);
 app.use('/boards/:boardId/posts', postRoute);
+
+app.get('/events/:userId', (req: Request, res: Response) => {
+  const { userId } = req.params;
+  sseHandler(req, res);
+  sendSSE(userId, 'sse 연결 성공');
+});
 
 initializeServer();
