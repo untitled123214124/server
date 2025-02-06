@@ -42,8 +42,7 @@ export const getPostsValidationRules = () => {
         '게시판 아이디는 "study" | "toy" | "code" 중 하나여야 합니다'
       ),
     query('currentPage')
-      .notEmpty()
-      .withMessage('현재 페이지는 필수입니다')
+      .optional()
       .isInt({ min: 1 })
       .withMessage('현재 페이지는 1 이상의 정수여야 합니다'),
     query('limit')

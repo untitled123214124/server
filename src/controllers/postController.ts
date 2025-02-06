@@ -81,7 +81,9 @@ export const getPosts = async (
   next: NextFunction
 ): Promise<void> => {
   const boardId = req.params.boardId;
-  const currentPage = parseInt(req.query.currentPage as string, 10);
+  const currentPage = req.query.currentPage
+    ? parseInt(req.query.currentPage as string, 10)
+    : 1;
   const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 6;
   try {
     const getPostsResponse = await postService.getPosts(
