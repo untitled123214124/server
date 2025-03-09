@@ -54,7 +54,7 @@ const postSchema = new Schema<IPost>(
     },
     likeCount: {
       type: Number,
-      defalut: 0,
+      default: 0,
     },
   },
   {
